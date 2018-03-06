@@ -47,4 +47,5 @@ $ foreman start -f Procfile.dev
 * added oop-interface for real interfaces (with narrowing scope)
 * added methods for making referencing methods in Ruby easy 
 * added airbrake & newrelic_rpm for error handling and monitoring
+* added rake mutant tasks (configured in .mutant_subjects and .mutant_ignored_subjects)
 
