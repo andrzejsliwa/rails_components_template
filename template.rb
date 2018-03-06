@@ -209,7 +209,7 @@ insert_into_file "package.json", <<-JSON, after: %Q{"private": true,\n}
       "stylelint --fix",
       "git add"
     ],
-    "**/*": [
+    "**/*.rb": [
       "rubocop --auto-correct --rails --color",
       "git add"
     ]
