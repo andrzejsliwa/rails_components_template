@@ -68,6 +68,27 @@ insert_into_file(
 )
 
 insert_into_file(
+  "config/initializers/content_security_policy.rb",
+  %Q{
+Rails.application.config.content_security_policy do |policy|
+   policy.default_src :self, :https
+   policy.font_src    :self, :https, :data
+   policy.img_src     :self, :https, :data
+   policy.object_src  :none
+   policy.script_src  :self, :https
+   policy.style_src   :self, :https, :unsafe_inline
+   # You need to allow webpack-dev-server host as allowed origin for connect-src.
+   policy.connect_src :self, :https, "http://localhost:3035", "ws://localhost:3035" if Rails.env.development?
+
+   # Specify URI for violation reports
+   # policy.report_uri "/csp-violation-report-endpoint"
+end
+},
+  after: "# Be sure to restart your server when you modify this file.\n"
+)
+
+
+insert_into_file(
   "Rakefile",
   %Q{\nRake::Task.define_task('assets:precompile' => ['yarn:install', 'webpacker:compile'])\n},
   after: "require_relative 'config/application'\n"
@@ -273,6 +294,8 @@ guard :migrate do
 end
 }
 
+
+
 after_bundle do
   run "bin/spring stop"
   # https://github.com/rails/webpacker/issues/1303
@@ -301,17 +324,17 @@ after_bundle do
 
   file "frontend/cable.js", <<-JAVASCRIPT
   import cable from "actioncable";
-  
+
   let consumer;
-  
+
   function createChannel(...args) {
     if (!consumer) {
       consumer = cable.createConsumer();
     }
-  
+
     return consumer.subscriptions.create(...args);
   }
-  
+
   export default createChannel;
   JAVASCRIPT
 
