@@ -51,14 +51,13 @@ insert_into_file(
     config.i18n.available_locales = [:en]
 
     config.generators do |g|
-      g.test_framework  false
       g.stylesheets     false
       g.javascripts     false
       g.helper          false
       g.channel         assets: false
       g.komponent stimulus: true, locale: true
     end},
-  after: "class Application < Rails::Application\n"
+  after: "config.load_defaults 5.2\n"
 )
 
 insert_into_file(
