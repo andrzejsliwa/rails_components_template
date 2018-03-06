@@ -150,6 +150,7 @@ AllCops:
   TargetRubyVersion: 2.5
   DisplayCopNames: true
   Exclude:
+    - lib/tasks/*.rake
     - bin/update
     - bin/setup
     - config/environments/*

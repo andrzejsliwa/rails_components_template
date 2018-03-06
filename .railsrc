@@ -2,4 +2,5 @@
 --skip-sprockets
 --webpack
 --database=postgresql
+--skip-test
 -m ~/.rails_components_template/template.rb
