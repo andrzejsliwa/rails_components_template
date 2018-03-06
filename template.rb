@@ -48,6 +48,8 @@ insert_into_file(
   %Q{
     config.komponent.root = Rails.root.join("frontend")
 
+    config.i18n.available_locales = [:en]
+
     config.generators do |g|
       g.test_framework  false
       g.stylesheets     false
