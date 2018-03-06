@@ -412,8 +412,6 @@ after_bundle do
   rails_command "db:migrate"
   rails_command "erb:to_slim"
 
-  run "rubocop --auto-correct"
-
   git add: '-A .'
   git commit: '-m "Initial commit"'
 
