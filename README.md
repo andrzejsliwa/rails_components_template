@@ -8,7 +8,7 @@ $ rails new someapp
 $ cd someapp
 $ foreman start -f Procfile.dev  
 ```
-## What is inside
+## Batteries included ;)
 
 * removed sprockets and replaced it with webpacker
 * moved turbolinks (with leaving gem for rails integration on redirecting), actioncable, rails-ujs to yarn
