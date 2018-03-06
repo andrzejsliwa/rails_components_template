@@ -426,6 +426,7 @@ after_bundle do
   }
 
   file "lib/tasks/mutant.rake", %q{
+
 class MutantRunner
   def run
     out = false
@@ -454,7 +455,7 @@ class MutantRunner
     mutants_paths_path = Rails.root.join('.mutant_subjects')
     return [] unless File.exist?(mutants_paths_path)
     lines = File.read(mutants_paths_path).split("\n").reject { |s| s.blank? }
-    paths = lines.select { |s| s =~ /\.rb/ }
+    paths, classes = lines.partition { |s| s =~ /\.rb/ }
     classes = lines.select { |s| s !~ /\.rb/ }
     Dir[*paths].map do |path|
       path.match(/(\w+).rb/)
@@ -477,7 +478,6 @@ desc "Run mutant for paths defined in `.mutant_subjects` and ignored subjects fr
 task :mutant do
   MutantRunner.new.run
 end
-
   }
 
   file ".mutant_ignored_subjects", %q{
