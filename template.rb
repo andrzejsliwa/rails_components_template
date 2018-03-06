@@ -91,7 +91,19 @@ end
 
 insert_into_file(
   "Rakefile",
-  %Q{\nRake::Task.define_task('assets:precompile' => ['yarn:install', 'webpacker:compile'])\n},
+  %q{
+Rake::Task.define_task('assets:precompile' => ['yarn:install', 'webpacker:compile'])
+
+begin
+  require 'rspec/core/rake_task'
+
+  RSpec::Core::RakeTask.new(:spec)
+
+  task :default => [:spec, :mutant]
+rescue LoadError
+  # no rspec available
+end
+},
   after: "require_relative 'config/application'\n"
 )
 
