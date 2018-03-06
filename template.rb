@@ -186,10 +186,13 @@ insert_into_file "package.json", <<-JSON, after: %Q{"private": true,\n}
       "stylelint --fix",
       "git add"
     ]
+    "**/*": [
+      "rubocop --auto-correct",
+      "git add"
+    ]
   },
   "pre-commit": [
     "lint-staged",
-    "rubocop --auto-correct"
   ],
 JSON
 
