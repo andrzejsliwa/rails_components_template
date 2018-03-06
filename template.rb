@@ -269,7 +269,7 @@ end
 }
 
 after_bundle do
-  run "spring stop"
+  run "bin/spring stop"
   # https://github.com/rails/webpacker/issues/1303
   run "yarn add -D webpack-dev-server@^2.11.1"
 
