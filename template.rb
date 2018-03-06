@@ -303,11 +303,11 @@ after_bundle do
   run "yarn add -D webpack-dev-server@^2.11.1"
 
   run "yarn add -D webpack-cli babel-eslint eslint eslint-config-airbnb-base eslint-config-prettier eslint-import-resolver-webpack eslint-plugin-import eslint-plugin-prettier lint-staged pre-commit prettier stylelint stylelint-config-standard"
-  run "yarn add normalize.css postcss-nested rails-ujs turbolinks actioncable"
+  run "yarn add normalize.css postcss-nested postcss-inline-svg rails-ujs turbolinks actioncable"
 
   insert_into_file(
     ".postcssrc.yml",
-    %Q{  postcss-nested: {}\n},
+    %Q{  postcss-nested: {}\n  postcss-inline-svg\n},
     after: "postcss-cssnext: {}\n"
   )
 
