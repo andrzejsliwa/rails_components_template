@@ -1,0 +1,5 @@
+--skip-coffee
+--skip-sprockets
+--webpack
+--database=postgresql
+-m rails_template/template.rb
