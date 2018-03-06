@@ -146,7 +146,7 @@ JSON
 
 file ".rubocop.yml", <<-YML
 AllCops:
-  TargetRubyVersion: 2.3
+  TargetRubyVersion: 2.5
   DisplayCopNames: true
   Exclude:
     - bin/update
