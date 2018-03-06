@@ -42,6 +42,7 @@ gem_group :development do
   gem 'guard-shell'
   gem 'guard-spring'
   gem 'rubocop', require: false
+  gem 'foreman'
 end
 
 insert_into_file(
