@@ -20,6 +20,7 @@ gem_group :development, :test do
   gem 'dotenv-rails'
   gem 'factory_bot_rails'
   gem 'rspec-rails', '~> 3.7'
+  # support for rspec 3.7 is not officially released
   gem 'mutant-rspec', git: 'git@github.com:mbj/mutant.git'
   gem 'selenium-webdriver'
   gem 'faker'
