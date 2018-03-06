@@ -188,12 +188,12 @@ insert_into_file "package.json", <<-JSON, after: %Q{"private": true,\n}
       "git add"
     ],
     "**/*": [
-      "rubocop --auto-correct",
+      "rubocop --auto-correct --rails --color --fail-level error",
       "git add"
     ]
   },
   "pre-commit": [
-    "lint-staged"
+    "lint-staged --color"
   ],
 JSON
 
