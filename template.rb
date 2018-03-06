@@ -192,7 +192,7 @@ insert_into_file "package.json", <<-JSON, after: %Q{"private": true,\n}
     ]
   },
   "pre-commit": [
-    "lint-staged",
+    "lint-staged"
   ],
 JSON
 
