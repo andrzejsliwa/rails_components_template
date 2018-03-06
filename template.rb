@@ -433,7 +433,7 @@ class MutantRunner
     return "" unless File.exist?(ignored_subjects_path)
     File.read(ignored_subjects_path)
       .split("\n")
-      .reject { |s| s.empty? }
+      .reject { |s| s.blank? }
       .map { |s| "--ignore-subject #{s}" }
       .join(" ")
   end
@@ -441,7 +441,7 @@ class MutantRunner
   def classes_list
     mutants_paths_path = Rails.root.join('.mutant_subjects')
     return [] unless File.exist?(mutants_paths_path)
-    lines = File.read(mutants_paths_path).split("\n").reject { |s| s.empty? }
+    lines = File.read(mutants_paths_path).split("\n").reject { |s| s.blank? }
     paths = lines.select { |s| s =~ /\.rb/ }
     classes = lines.select { |s| s !~ /\.rb/ }
     Dir[*paths].map do |path|
@@ -465,6 +465,7 @@ desc "Run mutant for paths defined in `.mutant_subjects` and ignored subjects fr
 task :mutant do
   MutantRunner.new.run
 end
+
   }
 
   file ".mutant_ignored_subjects", %q{
