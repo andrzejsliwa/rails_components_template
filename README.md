@@ -11,8 +11,11 @@ $ foreman start -f Procfile.dev
 ## Batteries included ;)
 
 * removed sprockets and replaced it with webpacker
-* moved turbolinks (with leaving gem for rails integration on redirecting), actioncable, rails-ujs to yarn
 * moved app/script to frontend, and applied on it komponent.io with support for stimulus
+* configured webpacker to point with source_path to frontend directory
+* switched from include tag to pack tags
+* moved turbolinks (with leaving gem for rails integration on redirecting), actioncable, rails-ujs to yarn
+* prepended view path with frontend for komponents views 
 * configured komponent in application.rb and in controller
 * added cable.js to frontend directory
 * replaced sass with postcss
@@ -38,6 +41,7 @@ $ foreman start -f Procfile.dev
 * added & configured annotate (database structure annotations in models)
 * added awesome_print for rails console
 * replaced standard tests with rspec
+* enabled support for system specs in rails_helper
 * added missing generator for system spec
 * added selenium-webdriver to drive system spec
 * added oop-interface for real interfaces (with narrowing scope)
