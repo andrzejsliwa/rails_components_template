@@ -185,7 +185,7 @@ insert_into_file "package.json", <<-JSON, after: %Q{"private": true,\n}
       "prettier --write",
       "stylelint --fix",
       "git add"
-    ]
+    ],
     "**/*": [
       "rubocop --auto-correct",
       "git add"
