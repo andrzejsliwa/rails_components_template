@@ -188,12 +188,12 @@ insert_into_file "package.json", <<-JSON, after: %Q{"private": true,\n}
       "git add"
     ],
     "**/*": [
-      "rubocop --auto-correct --rails --color --fail-level error",
+      "rubocop --auto-correct --rails --color",
       "git add"
     ]
   },
   "pre-commit": [
-    "lint-staged --color"
+    "lint-staged"
   ],
 JSON
 
@@ -415,6 +415,8 @@ after_bundle do
   rails_command "db:create"
   rails_command "db:migrate"
   rails_command "erb:to_slim"
+
+  run "rubocop --auto-correct --rails"
 
   git add: '-A .'
   git commit: '-m "Initial commit"'
