@@ -344,7 +344,7 @@ after_bundle do
     after: "RSpec.configure do |config|\n"
   )
 
-  file "lib/generators/rspec/system/system_generator", %q{
+  file "lib/generators/rspec/system/system_generator.rb", %q{
   require 'generators/rspec'
 
   module Rspec
