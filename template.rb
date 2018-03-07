@@ -175,7 +175,7 @@ after_bundle do
 
   insert_into_file(
     ".postcssrc.yml",
-    %Q{  postcss-nested: {}\n  postcss-inline-svg\n},
+    %Q{  postcss-nested: {}\n  postcss-inline-svg: {}\n},
     after: "postcss-cssnext: {}\n"
   )
 
@@ -247,8 +247,8 @@ after_bundle do
 
   gsub_file(
     "app/views/layouts/application.html.slim",
-    /stylesheet_link_tag\s+.application.*%/,
-    %Q{stylesheet_pack_tag 'application' %}
+    /stylesheet_link_tag\s+.application./,
+    %Q{stylesheet_pack_tag 'application'}
   )
 
   run "rubocop --auto-correct --rails"
