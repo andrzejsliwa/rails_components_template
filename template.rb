@@ -1,5 +1,8 @@
-#
-#
+ENV["DISABLE_BOOTSNAP"] = "1"
+require_relative "template_tooling"
+add_template_repository_to_source_path
+assert_minimum_rails_version "~> 5.2.0.rc1"
+
 gem 'redis', '~> 4.0'
 gem 'komponent'
 gem 'slim-rails'
@@ -117,91 +120,18 @@ insert_into_file(
 
 run "rm -fr app/assets"
 
-gsub_file(
-  "app/views/layouts/application.html.erb",
-  /javascript_include_tag\s+.application./,
-  %Q{javascript_pack_tag 'application'}
-)
-
-gsub_file(
-  "app/views/layouts/application.html.erb",
-  /stylesheet_link_tag\s+.application.*%/,
-  %Q{stylesheet_pack_tag 'application' %}
-)
-
 insert_into_file(
   "app/controllers/application_controller.rb",
   %Q{  prepend_view_path Rails.root.join("frontend")\n},
   after: "class ApplicationController < ActionController::Base\n"
 )
 
-file "Procfile", <<-PROCFILE
-server: bin/rails server
-PROCFILE
-
-file "Procfile.dev", <<-PROCFILE
-server: bin/rails server
-assets: bin/webpack-dev-server
-PROCFILE
-
-file ".browserlistrc", <<-TXT
-> 1%
-TXT
-
-file ".eslintrc", <<-JSON
-{
-  "extends": ["eslint-config-airbnb-base", "prettier"],
-  "plugins": ["prettier"],
-  "env": {
-    "browser": true
-  },
-  "rules": {
-    "prettier/prettier": "error",
-    "class-methods-use-this": 1,
-  },
-  "parser": "babel-eslint",
-  "settings": {
-    "import/resolver": {
-      "webpack": {
-        "config": {
-          "resolve": {
-            "modules": ["frontend", "node_modules"]
-          }
-        }
-      }
-    }
-  }
-}
-JSON
-
-file ".stylelintrc", <<-JSON
-{
-  "extends": "stylelint-config-standard"
-}
-JSON
-
-file ".rubocop.yml", <<-YML
-AllCops:
-  TargetRubyVersion: 2.5
-  DisplayCopNames: true
-  Exclude:
-    - lib/tasks/*.rake
-    - bin/update
-    - bin/setup
-    - config/environments/*
-    - lib/tasks/erb_to_slim.rake
-    - db/**/*
-    - node_modules/**/*
-    - Brewfile
-    - Guardfile
-    - .pryrc
-
-Metrics/LineLength:
-  Max: 120
-
-Style/Documentation:
-  Enabled: false
-YML
+copy_file "template/Procfile", "Procfile"
+copy_file "template/Procfile.dev", "Procfile.dev"
+copy_file "template/.browserlistrc", ".browserlistrc"
+copy_file "template/.eslintrc", ".eslintrc"
+copy_file "template/.stylelintrc", ".stylelintrc"
+copy_file "template/.rubocop.yml", ".rubocop.yml"
 
 insert_into_file "package.json", <<-JSON, after: %Q{"private": true,\n}
   "scripts": {
@@ -233,82 +163,7 @@ insert_into_file "package.json", <<-JSON, after: %Q{"private": true,\n}
   ],
 JSON
 
-file "Guardfile",%q{
-guard :spring, bundler: true do
-  watch('Gemfile.lock')
-  watch(%r{^config/})
-  watch(%r{^spec/(support|factories)/})
-  watch(%r{^spec/factory.rb})
-end
-
-group :red_green_refactor, halt_on_fail: true do
-  # Note: The cmd option is now required due to the increasing number of ways
-  #       rspec may be run, below are examples of the most common uses.
-  #  * bundler: 'bundle exec rspec'
-  #  * bundler binstubs: 'bin/rspec'
-  #  * spring: 'bin/rspec' (This will use spring if running and you have
-  #                          installed the spring binstubs per the docs)
-  #  * zeus: 'zeus rspec' (requires the server to be started separately)
-  #  * 'just' rspec: 'rspec'
-
-  guard :rspec, cmd: 'bundle exec rspec' do
-    require 'guard/rspec/dsl'
-    dsl = Guard::RSpec::Dsl.new(self)
-
-    # Feel free to open issues for suggestions and improvements
-
-    # RSpec files
-    rspec = dsl.rspec
-    watch(rspec.spec_helper) { rspec.spec_dir }
-    watch(rspec.spec_support) { rspec.spec_dir }
-    watch(rspec.spec_files)
-
-    # Ruby files
-    ruby = dsl.ruby
-    dsl.watch_spec_files_for(ruby.lib_files)
-
-    # Rails files
-    rails = dsl.rails(view_extensions: %w[erb haml slim])
-    dsl.watch_spec_files_for(rails.app_files)
-    dsl.watch_spec_files_for(rails.views)
-
-    watch(rails.controllers) do |m|
-      [
-        rspec.spec.call("routing/#{m[1]}_routing"),
-        rspec.spec.call("controllers/#{m[1]}_controller"),
-        rspec.spec.call("acceptance/#{m[1]}")
-      ]
-    end
-
-    # Rails config changes
-    watch(rails.spec_helper)     { rspec.spec_dir }
-    watch(rails.routes)          { "#{rspec.spec_dir}/routing" }
-    watch(rails.app_controller)  { "#{rspec.spec_dir}/controllers" }
-
-    # Capybara features specs
-    watch(rails.view_dirs)     { |m| rspec.spec.call("features/#{m[1]}") }
-    watch(rails.layouts)       { |m| rspec.spec.call("features/#{m[1]}") }
-
-    # Turnip features and steps
-    watch(%r{^spec/acceptance/(.+)\.feature$})
-    watch(%r{^spec/acceptance/steps/(.+)_steps\.rb$}) do |m|
-      Dir[File.join("**/#{m[1]}.feature")][0] || 'spec/acceptance'
-    end
-  end
-
-  guard :rubocop, all_on_start: false, cli: %w[--rails --format clang --auto-correct] do
-    watch(/.+\.rb$/)
-    watch(%r{(?:.+/)?\.rubocop(?:_todo)?\.yml$}) { |m| File.dirname(m[0]) }
-  end
-end
-
-guard :migrate do
-  watch(%r{^db/migrate/(\d+).+\.rb})
-  watch('db/seeds.rb')
-end
-}
-
-
+copy_file "template/Guardfile", "Guardfile"
 
 after_bundle do
   run "bin/spring stop"
@@ -348,39 +203,11 @@ after_bundle do
   generate "rspec:install"
   generate "annotate:install"
 
-  file "frontend/cable.js", <<-JAVASCRIPT
-  import cable from "actioncable";
+  copy_file "template/frontend/cable.js", "frontend/cable.js"
+  copy_file "template/frontend/packs/application.css", "frontend/packs/application.css"
 
-  let consumer;
-
-  function createChannel(...args) {
-    if (!consumer) {
-      consumer = cable.createConsumer();
-    }
-
-    return consumer.subscriptions.create(...args);
-  }
-
-  export default createChannel;
-  JAVASCRIPT
-
-  file "frontend/packs/application.css", <<-CSS
-  html, body {
-    background: white; /* just an example */
-  }
-  CSS
-
-  run "rm frontend/packs/application.js"
-  file "frontend/packs/application.js", <<-JS
-  import Turbolinks from "turbolinks";
-  import Rails from "rails-ujs";
-  import "components";
-
-  import "./application.css";
-
-  Turbolinks.start();
-  Rails.start();
-  JS
+  remove_file "frontend/packs/application.js"
+  copy_file "template/frontend/packs/application.js", "frontend/packs/application.js"
 
   system_specs = <<-RUBY
       config.before(:each, type: :system) do
@@ -398,137 +225,31 @@ after_bundle do
     after: "RSpec.configure do |config|\n"
   )
 
-  file "lib/generators/rspec/system/system_generator.rb", %q{
-  require 'generators/rspec'
+  copy_file "template/lib/generators/rspec/system/system_generator.rb",
+            "lib/generators/rspec/system/system_generator.rb"
+  copy_file "template/lib/generators/rspec/system/templates/system_spec.rb.erb",
+            "lib/generators/rspec/system/templates/system_spec.rb.erb"
 
-  module Rspec
-    module Generators
-      # @private
-      class SystemGenerator < Base
-        source_root File.expand_path('templates', __dir__)
-        class_option :system_specs, type: :boolean, default: true, desc: 'Generate system specs'
-
-        def generate_feature_spec
-          return unless options[:system_specs]
-
-          template template_name, File.join('spec/system', class_path, filename)
-        end
-
-        def template_name
-          'system_spec.rb.erb'
-        end
-
-        def filename
-          "#{table_name}_spec.rb"
-        end
-      end
-    end
-  end
-  }
-
-  file "lib/generators/rspec/system/templates/system_spec.rb.erb", %q{
-  require 'rails_helper'
-
-  RSpec.describe "<%= class_name.pluralize %>", <%= type_metatag(:system) %> do
-    before do
-      driven_by(:rack_test)
-    end
-
-    pending "add some scenarios (or delete) #{__FILE__}"
-  end
-  }
-
-  file "lib/tasks/mutant.rake", %q{
-
-class MutantRunner
-  def run
-    out = false
-    classes_list.each do |c|
-      puts "Running mutant for '#{c}'"
-      out = system("RAILS_EAGER_LOAD=true RAILS_ENV=test bundle exec mutant -r \
-          ./config/environment #{ignored_subjects} --use rspec #{c}")
-      break unless out
-    end
-    out
-  end
-
-  private
-
-  def ignored_subjects
-    ignored_subjects_path = Rails.root.join('.mutant_ignored_subjects')
-    return "" unless File.exist?(ignored_subjects_path)
-    File.read(ignored_subjects_path)
-      .split("\n")
-      .reject { |s| s.blank? }
-      .map { |s| "--ignore-subject #{s}" }
-      .join(" ")
-  end
-
-  def classes_list
-    mutants_paths_path = Rails.root.join('.mutant_subjects')
-    return [] unless File.exist?(mutants_paths_path)
-    lines = File.read(mutants_paths_path).split("\n").reject { |s| s.blank? }
-    paths, classes = lines.partition { |s| s =~ /\.rb/ }
-    classes = lines.select { |s| s !~ /\.rb/ }
-    Dir[*paths].map do |path|
-      path.match(/(\w+).rb/)
-    end.compact.each do |c|
-      classes << camelize(c[1])
-    end
-    classes
-  end
-
-  def camelize(string)
-    mod_string = ''
-    string.split('_').each do |part|
-      mod_string += "#{part[0].upcase}#{part[1..-1]}"
-    end
-    mod_string
-  end
-end
-
-desc "Run mutant for paths defined in `.mutant_subjects` and ignored subjects from `.mutant_ignored_subjects`"
-task :mutant do
-  MutantRunner.new.run
-end
-  }
-
-  file ".mutant_ignored_subjects", %q{
-  Some#method
-  }
-
-  file ".mutant_subjects", %q{
-  app/models/*.rb
-  ApplicationController
-  }
-
-  file "lib/tasks/erb_to_slim.rake", %q{
-  namespace :erb do
-    desc 'Convert erb tempaltes to slim'
-    task :to_slim do
-      require 'html2slim'
-
-      FileList[Rails.root.join('app/views/**/*.html.erb'),
-               Rails.root.join('frontend/**/*.html.erb')].each do |erb|
-
-        slim_output = erb.sub(/\.erb$/, '.slim')
-
-        puts "conventing #{erb} .."
-        File.open erb, 'r' do |f|
-          content = HTML2Slim.convert!(f, :erb)
-          IO.write(slim_output, content)
-        end
-        puts "converted to #{slim_output} ."
-        File.delete(erb)
-        puts "removed #{erb}"
-      end
-    end
-  end
-  }
+  copy_file "template/lib/tasks/mutant.rake", "lib/tasks/mutant.rake"
+  copy_file "template/.mutant_ignored_subjects", ".mutant_ignored_subjects"
+  copy_file "template/.mutant_subjects", ".mutant_subjects"
+  copy_file "template/lib/tasks/erb_to_slim.rake", "lib/tasks/erb_to_slim.rake"
 
   rails_command "db:create"
   rails_command "db:migrate"
   rails_command "erb:to_slim"
+
+  gsub_file(
+    "app/views/layouts/application.html.slim",
+    /javascript_include_tag\s+.application./,
+    %Q{javascript_pack_tag 'application'}
+  )
+
+  gsub_file(
+    "app/views/layouts/application.html.slim",
+    /stylesheet_link_tag\s+.application.*%/,
+    %Q{stylesheet_pack_tag 'application' %}
+  )
 
   run "rubocop --auto-correct --rails"
 

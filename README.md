@@ -10,7 +10,7 @@ $ cd someapp
 $ foreman start -f Procfile.dev  
 ```
 
-or apply it on existing application:
+or apply it on existing application: (WARNING!: check duplicates from insertions)
 ```bash
 $ cd someapp
 $ bin/rails app:template LOCATION=~/.rails_components_template/template.rb
