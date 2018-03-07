@@ -2,6 +2,7 @@
 
 ```bash
 $ rvm 2.5.0
+$ gem install rails -v=5.2.0.rc1
 $ git clone git@github.com:andrzejsliwa/rails_components_template.git ~/.rails_components_template
 $ ln -s ~/.rails_components_template/.railsrc ~/.railsrc
 $ rails new someapp
@@ -49,3 +50,5 @@ $ foreman start -f Procfile.dev
 * added airbrake & newrelic_rpm for error handling and monitoring
 * added rake mutant tasks (configured in .mutant_subjects and .mutant_ignored_subjects)
 * defined default rake task on spec & mutant
+* added RAILS_EAGER_LOAD flag to detect NameErrors on CI and solve issue with mutant running
+

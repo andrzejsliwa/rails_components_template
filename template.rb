@@ -1,4 +1,5 @@
 #
+#
 gem 'redis', '~> 4.0'
 gem 'komponent'
 gem 'slim-rails'
@@ -329,6 +330,18 @@ after_bundle do
     "source_path: frontend"
   )
 
+  gsub_file(
+    "config/environments/development.rb",
+    "config.eager_load = false",
+    "config.eager_load = ENV['RAILS_EAGER_LOAD'] == 'true'"
+  )
+
+  gsub_file(
+    "config/environments/test.rb",
+    "config.eager_load = false",
+    "config.eager_load = ENV['RAILS_EAGER_LOAD'] == 'true'"
+  )
+
   run "mv app/javascript frontend"
 
   generate "komponent:install", "--stimulus"
@@ -432,7 +445,7 @@ class MutantRunner
     out = false
     classes_list.each do |c|
       puts "Running mutant for '#{c}'"
-      out = system("RAILS_ENV=test bundle exec mutant -r \
+      out = system("RAILS_EAGER_LOAD=true RAILS_ENV=test bundle exec mutant -r \
           ./config/environment #{ignored_subjects} --use rspec #{c}")
       break unless out
     end
