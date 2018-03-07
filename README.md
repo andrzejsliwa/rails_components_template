@@ -9,6 +9,12 @@ $ rails new someapp
 $ cd someapp
 $ foreman start -f Procfile.dev  
 ```
+
+or apply it on existing application:
+```bash
+$ cd someapp
+$ bin/rails app:template LOCATION=~/.rails_components_template/template.rb
+```
 ## Batteries included ;)
 
 * removed sprockets and replaced it with webpacker
