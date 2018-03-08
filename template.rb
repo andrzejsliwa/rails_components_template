@@ -144,7 +144,7 @@ after_bundle do
   # https://github.com/rails/webpacker/issues/1303
   run "yarn add -D webpack-dev-server@^2.11.1"
 
-  run "yarn add -D webpack-cli git-guilt babel-eslint eslint eslint-config-airbnb-base eslint-config-prettier eslint-import-resolver-webpack eslint-plugin-import eslint-plugin-prettier lint-staged prettier stylelint stylelint-config-standard"
+  run "yarn add -D webpack-cli git-guilt babel-eslint eslint eslint-config-airbnb-base eslint-config-prettier eslint-import-resolver-webpack eslint-plugin-import eslint-plugin-prettier prettier stylelint stylelint-config-standard"
   run "yarn add normalize.css postcss-nested postcss-inline-svg rails-ujs turbolinks actioncable"
 
   insert_into_file(
