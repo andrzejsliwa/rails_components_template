@@ -47,6 +47,8 @@ gem_group :development do
   gem 'guard-spring'
   gem 'rubocop', require: false
   gem 'foreman'
+  gem 'overcommit'
+  gem 'fasterer'
 end
 
 insert_into_file(
@@ -98,6 +100,7 @@ insert_into_file(
   %q{
 Rake::Task.define_task('assets:precompile' => ['yarn:install', 'webpacker:compile'])
 
+# rubocop:disable Lint/HandleExceptions
 begin
   require 'rspec/core/rake_task'
 
@@ -107,6 +110,7 @@ begin
 rescue LoadError
   # no rspec available
 end
+# rubocop:enable all
 },
   after: "require_relative 'config/application'\n"
 )
@@ -133,36 +137,6 @@ copy_file "template/.eslintrc", ".eslintrc"
 copy_file "template/.stylelintrc", ".stylelintrc"
 copy_file "template/.rubocop.yml", ".rubocop.yml"
 
-insert_into_file "package.json", <<-JSON, after: %Q{"private": true,\n}
-  "scripts": {
-    "lint-staged": "$(yarn bin)/lint-staged"
-  },
-  "lint-staged": {
-    "config/webpack/**/*.js": [
-      "prettier --write",
-      "eslint",
-      "git add"
-    ],
-    "frontend/**/*.js": [
-      "prettier --write",
-      "eslint",
-      "git add"
-    ],
-    "frontend/**/*.css": [
-      "prettier --write",
-      "stylelint --fix",
-      "git add"
-    ],
-    "**/*.rb": [
-      "rubocop --auto-correct --rails --color",
-      "git add"
-    ]
-  },
-  "pre-commit": [
-    "lint-staged"
-  ],
-JSON
-
 copy_file "template/Guardfile", "Guardfile"
 
 after_bundle do
@@ -170,13 +144,22 @@ after_bundle do
   # https://github.com/rails/webpacker/issues/1303
   run "yarn add -D webpack-dev-server@^2.11.1"
 
-  run "yarn add -D webpack-cli babel-eslint eslint eslint-config-airbnb-base eslint-config-prettier eslint-import-resolver-webpack eslint-plugin-import eslint-plugin-prettier lint-staged pre-commit prettier stylelint stylelint-config-standard"
+  run "yarn add -D webpack-cli git-guilt babel-eslint eslint eslint-config-airbnb-base eslint-config-prettier eslint-import-resolver-webpack eslint-plugin-import eslint-plugin-prettier lint-staged pre-commit prettier stylelint stylelint-config-standard"
   run "yarn add normalize.css postcss-nested postcss-inline-svg rails-ujs turbolinks actioncable"
 
   insert_into_file(
     ".postcssrc.yml",
     %Q{  postcss-nested: {}\n  postcss-inline-svg: {}\n},
     after: "postcss-cssnext: {}\n"
+  )
+
+  insert_into_file(
+    "bin/setup", %q{
+puts '== Installing overcommit =='
+system!('bundle exec overcommit --install --force')
+system!('bundle exec overcommit --sign')
+},
+    after: "# Add necessary setup steps to this file.\n"
   )
 
   gsub_file(
@@ -235,6 +218,9 @@ after_bundle do
   copy_file "template/.mutant_subjects", ".mutant_subjects"
   copy_file "template/lib/tasks/erb_to_slim.rake", "lib/tasks/erb_to_slim.rake"
 
+  copy_file "template/.overcommit.yml", ".overcommit.yml"
+  copy_file "template/bin/rubocop_loop", "bin/rubocop_loop"
+
   rails_command "db:create"
   rails_command "db:migrate"
   rails_command "erb:to_slim"
@@ -251,13 +237,18 @@ after_bundle do
     %Q{stylesheet_pack_tag 'application'}
   )
 
-  run "rubocop --auto-correct --rails"
+  gsub_file(
+    "app/views/layouts/mailer.html.slim",
+    "      |  /* Email styles need to be inline */ ",
+    "      |  /* Email styles need to be inline */"
+  )
+
+  run 'bundle exec overcommit --install --force'
+  run 'bundle exec overcommit --sign'
 
   git add: '-A .'
   git commit: '-m "Initial commit"'
 
   file ".env", <<-TXT
-export USER=postgres
-
   TXT
 end

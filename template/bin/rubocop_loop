@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+while true
+do
+  clear
+  unbuffer rubocop  --auto-correct --rails -F | head -n 10
+  read -p "Press any key to continue... " -n1 -s
+done

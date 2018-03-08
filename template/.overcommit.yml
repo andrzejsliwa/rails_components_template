@@ -1,0 +1,86 @@
+verify_signatures: false
+gemfile: Gemfile
+concurrency: 1
+
+PreCommit:
+  AuthorName:
+    enabled: false
+  AuthorEmail:
+    enabled: false
+
+  BundleAudit:
+    enabled: true
+
+  RuboCop:
+    enabled: true
+    on_warn: fail
+    flags:
+      - --rails
+      - --format=emacs
+      - --force-exclusion
+      - --display-cop-names
+      - --auto-correct
+
+  RailsSchemaUpToDate:
+    enabled: true
+
+  Fasterer:
+    on_warn: fail
+    enabled: true
+
+  BundleCheck:
+    enabled: true
+
+  TrailingWhitespace:
+    enabled: true
+    exclude:
+      - 'coverage/**/*'
+      - '**/db/schema.rb'
+
+  EsLint:
+    enabled: true
+    on_warn: fail,
+    required_executable: 'yarn'
+    command: ['yarn', 'run', 'eslint', '--', '--format=compact', '--fix']
+    exclude:
+      - 'vendor/**/*'
+      - 'stories/**/*'
+      - '.storybook/**/*'
+      - '.eslintrc.js'
+
+  Prettier:
+    enabled: true
+    required_executable: 'yarn'
+    command: ['yarn', 'run', 'prettier', '--write', 'config/webpack/**/*.js', 'frontend/**/*.js', 'frontend/**/*.css']
+
+  Stylelint:
+    enabled: true
+    required_executable: 'yarn'
+    command: ['yarn', 'run', 'stylelint', '--fix', 'frontend/**/*.css']
+
+
+PostCheckout:
+  BundleInstall:
+    enabled: true
+  YarnInstall:
+    enabled: true
+
+PostCommit:
+  GitGuilt:
+    enabled: true
+    required_executable: 'yarn'
+    command: ['yarn', 'run', 'git-guilt', '--', '-w', 'HEAD~', 'HEAD']
+
+PostMerge:
+  BundleInstall:
+    enabled: true
+  YarnInstall:
+    enabled: true
+
+PrePush:
+  RSpec:
+    enabled: false
+  ProtectedBranches:
+    quiet: true
+    enabled: true
+
