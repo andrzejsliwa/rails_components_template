@@ -39,7 +39,7 @@ PreCommit:
 
   EsLint:
     enabled: true
-    on_warn: fail,
+    on_warn: fail
     required_executable: 'yarn'
     command: ['yarn', 'run', 'eslint', '--', '--format=compact', '--fix']
     exclude:
