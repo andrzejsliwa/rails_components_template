@@ -248,6 +248,8 @@ system!('bundle exec overcommit --sign')
   run 'bundle exec overcommit --sign'
 
   git add: '-A .'
+  run 'bundle exec overcommit -r'
+  git add: '-A .'
   git commit: '-m "Initial commit"'
 
   file ".env", <<-TXT
