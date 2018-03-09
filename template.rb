@@ -49,6 +49,7 @@ gem_group :development do
   gem 'foreman'
   gem 'overcommit'
   gem 'fasterer'
+  gem 'bundle-audit'
 end
 
 insert_into_file(
