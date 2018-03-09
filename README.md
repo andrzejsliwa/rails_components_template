@@ -29,8 +29,6 @@ $ bin/rails app:template LOCATION=~/.rails_components_template/template.rb
 * added postcss-import, postcss-cssnext, postcss-nested (with support for BEM)
 * added stylelint with configuration
 * added normalize.css
-* configured lint-staged (with runing eslint with airbnb defaults + rubocop for ruby)
-* connected lint-staged to pre-commit hooks
 * added foreman with default Procfile (for heroku) and Procfile.dev for development
 * added custom user handling for postgres via ENV variable
 * added support for .env via dotenv-rails
@@ -57,4 +55,5 @@ $ bin/rails app:template LOCATION=~/.rails_components_template/template.rb
 * added rake mutant tasks (configured in .mutant_subjects and .mutant_ignored_subjects)
 * defined default rake task on spec & mutant
 * added RAILS_EAGER_LOAD flag to detect NameErrors on CI and solve issue with mutant running
+* configured overcommit 
 
