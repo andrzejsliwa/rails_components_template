@@ -15,7 +15,7 @@ gem 'newrelic_rpm'
 
 gem_group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
-  gem 'annotate'
+  gem 'annotate', github: 'ctran/annotate_models', ref: '3c90753a44598b0b1d63ecad2084a56a479b3d4f'
   gem 'byebug', platforms: %i[mri mingw x64_mingw]
   gem 'pry-rails'
   gem 'pry-rails'
