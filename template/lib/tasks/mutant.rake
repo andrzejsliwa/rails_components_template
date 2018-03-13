@@ -1,14 +1,20 @@
 
 class MutantRunner
-  def run
+  def run(targets = subjects)
     out = false
-    classes_list.each do |c|
-      puts "Running mutant for '#{c}'"
+    Array(targets).each do |target|
+      puts "Running mutant for '#{target}'"
       out = system("RAILS_EAGER_LOAD=true RAILS_ENV=test bundle exec mutant -r \
-          ./config/environment #{ignored_subjects} --use rspec #{c}")
+          ./config/environment #{ignored_subjects} --use rspec #{target}")
       break unless out
     end
     out
+  end
+
+  def subjects
+    mutants_paths_path = Rails.root.join('.mutant_subjects')
+    return [] unless File.exist?(mutants_paths_path)
+    File.read(mutants_paths_path).split("\n").reject { |s| s.blank? }
   end
 
   private
@@ -23,20 +29,6 @@ class MutantRunner
       .join(" ")
   end
 
-  def classes_list
-    mutants_paths_path = Rails.root.join('.mutant_subjects')
-    return [] unless File.exist?(mutants_paths_path)
-    lines = File.read(mutants_paths_path).split("\n").reject { |s| s.blank? }
-    paths, classes = lines.partition { |s| s =~ /\.rb/ }
-    classes = lines.select { |s| s !~ /\.rb/ }
-    Dir[*paths].map do |path|
-      path.match(/(\w+).rb/)
-    end.compact.each do |c|
-      classes << camelize(c[1])
-    end
-    classes
-  end
-
   def camelize(string)
     mod_string = ''
     string.split('_').each do |part|
@@ -46,7 +38,22 @@ class MutantRunner
   end
 end
 
+
+namespace :mutate do
+  runner = MutantRunner.new
+  task :default do
+    runner.run
+  end
+
+  runner.subjects.each do |subject|
+    desc "Run mutation for #{subject}"
+    task subject.to_sym do
+      runner.run(subject)
+    end
+  end
+end
+
 desc "Run mutant for paths defined in `.mutant_subjects` and ignored subjects from `.mutant_ignored_subjects`"
-task :mutant do
-  MutantRunner.new.run
+task :mutate do
+  Rake::Task['mutate:default'].invoke
 end

@@ -1,2 +1,2 @@
-  app/models/*.rb
-  ApplicationController
+app/models/*.rb
+ApplicationController
