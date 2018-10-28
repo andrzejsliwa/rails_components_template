@@ -13,8 +13,18 @@ AllCops:
     - Guardfile
     - .pryrc
 
+Rails:
+  Enabled: true
+
 Metrics/LineLength:
   Max: 120
 
 Style/Documentation:
   Enabled: false
+
+CaseIndentation:
+  EnforcedStyle: case
+  IndentOneStep: true
+
+Layout/IndentationConsistency:
+  EnforcedStyle: rails
