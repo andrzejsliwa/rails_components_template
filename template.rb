@@ -1,15 +1,13 @@
 ENV["DISABLE_BOOTSNAP"] = "1"
 require_relative "template_tooling"
 add_template_repository_to_source_path
-assert_minimum_rails_version "~> 5.2.0.rc1"
+assert_minimum_rails_version "~> 5.2.1"
+
+SLIM = ENV["SLIM"] || false
 
 gem 'redis', '~> 4.0'
 gem 'komponent'
-gem 'slim-rails'
-
-gem 'oop-interface'
-gem 'methods'
-
+gem 'slim-rails' if SLIM
 gem 'airbrake'
 gem 'newrelic_rpm'
 
@@ -35,19 +33,13 @@ gem_group :development do
   # Access an interactive console on exception pages or by calling 'console' anywhere in the code.
   gem 'listen', '>= 3.0.5', '< 3.2'
   gem 'web-console', '>= 3.3.0'
+  gem 'html2slim' if SLIM
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
-  gem 'html2slim'
   gem 'spring'
   gem 'spring-watcher-listen', '~> 2.0.0'
 
-  gem 'guard-migrate'
-  gem 'guard-rspec', require: false
-  gem 'guard-rubocop'
-  gem 'guard-shell'
-  gem 'guard-spring'
   gem 'rubocop', require: false
   gem 'foreman'
-  gem 'overcommit'
   gem 'fasterer'
   gem 'bundle-audit'
 end
@@ -138,8 +130,6 @@ copy_file "template/.eslintrc", ".eslintrc"
 copy_file "template/.stylelintrc", ".stylelintrc"
 copy_file "template/.rubocop.yml", ".rubocop.yml"
 
-copy_file "template/Guardfile", "Guardfile"
-
 after_bundle do
   run "bin/spring stop"
   # https://github.com/rails/webpacker/issues/1303
@@ -152,15 +142,6 @@ after_bundle do
     ".postcssrc.yml",
     %Q{  postcss-nested: {}\n  postcss-inline-svg: {}\n},
     after: "postcss-cssnext: {}\n"
-  )
-
-  insert_into_file(
-    "bin/setup", %q{
-puts '== Installing overcommit =='
-system!('bundle exec overcommit --install --force')
-system!('bundle exec overcommit --sign')
-},
-    after: "# Add necessary setup steps to this file.\n"
   )
 
   gsub_file(
@@ -217,38 +198,34 @@ system!('bundle exec overcommit --sign')
   copy_file "template/lib/tasks/mutant.rake", "lib/tasks/mutant.rake"
   copy_file "template/.mutant_ignored_subjects", ".mutant_ignored_subjects"
   copy_file "template/.mutant_subjects", ".mutant_subjects"
-  copy_file "template/lib/tasks/erb_to_slim.rake", "lib/tasks/erb_to_slim.rake"
-
-  copy_file "template/.overcommit.yml", ".overcommit.yml"
-  copy_file "template/bin/rubocop_loop", "bin/rubocop_loop"
+  copy_file "template/lib/tasks/erb_to_slim.rake", "lib/tasks/erb_to_slim.rake" if SLIM
 
   rails_command "db:create"
   rails_command "db:migrate"
-  rails_command "erb:to_slim"
+  rails_command "erb:to_slim" if SLIM
+
+  template = SLIM ? "slim" : "erb"
 
   gsub_file(
-    "app/views/layouts/application.html.slim",
+    "app/views/layouts/application.html.#{template}",
     /javascript_include_tag\s+.application./,
     %Q{javascript_pack_tag 'application'}
   )
 
   gsub_file(
-    "app/views/layouts/application.html.slim",
+    "app/views/layouts/application.html.#{template}",
     /stylesheet_link_tag\s+.application./,
     %Q{stylesheet_pack_tag 'application'}
   )
 
   gsub_file(
-    "app/views/layouts/mailer.html.slim",
-    "      |  /* Email styles need to be inline */ ",
-    "      |  /* Email styles need to be inline */"
+    "app/views/layouts/mailer.html.#{template}",
+    "/* Email styles need to be inline */ ",
+    "/* Email styles need to be inline */"
   )
 
-  run 'bundle exec overcommit --install --force'
-  run 'bundle exec overcommit --sign'
+  run "rubocop -a ."
 
-  git add: '-A .'
-  run 'bundle exec overcommit -r'
   git add: '-A .'
   git commit: '-m "Initial commit"'
 
